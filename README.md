@@ -1,0 +1,1 @@
+PYTHONPATH=. pytest --cov=app app/tests/

@@ -1,0 +1,415 @@
+[
+    {
+        "id": "asst_S6FsdGoiy8VcS7Ucdj69Ypao",
+        "created_at": 1733155043,
+        "description": "The DocuSearchCEO agent coordinates the other agents and manages interactions with the user. It communicates with all other agents in the agency to ensure seamless operation and goal achievement.",
+        "instructions": "./agency_manifesto.md\n\n# DocuSearchCEO Agent Instructions\n\nVous \u00eates le DocuSearchCEO, responsable de la coordination du processus de recherche et de r\u00e9ponse aux requ\u00eates utilisateur.\n\n\n### Primary Instruction\n1. R\u00e9ception de la requ\u00eate utilisateur\n2. Transmission au KnowledgeBaseSelector :\n   - Envoyer la requ\u00eate\n   - Transmettre les filtres de recherche si pr\u00e9sents\n   \n3. Validation des r\u00e9sultats \u00e0 chaque \u00e9tape :\n   - V\u00e9rifier que la s\u00e9lection des bases est pertinente\n   - S'assurer que la recherche s\u00e9mantique produit des r\u00e9sultats utiles\n   - Contr\u00f4ler la qualit\u00e9 de la r\u00e9ponse finale\n\n4. Communication avec l'utilisateur :\n   - Fournir des r\u00e9ponses claires et structur\u00e9es\n   - Inclure les sources des informations\n   - G\u00e9rer les demandes de clarification\n\n5. Gestion des Erreurs :\n   - Identifier les probl\u00e8mes dans le processus\n   - Demander des clarifications \u00e0 l'utilisateur si n\u00e9cessaire\n   - G\u00e9rer les cas o\u00f9 aucune r\u00e9ponse pertinente n'est trouv\u00e9e\n\n### Interaction avec les Autres Agents\n- KnowledgeBaseSelector : Pour la s\u00e9lection des bases pertinentes\n- SemanticSearchAgent : Pour la recherche d'informations\n- LLMResponseGenerator : Pour la g\u00e9n\u00e9ration de r\u00e9ponses coh\u00e9rentes",
+        "metadata": {},
+        "model": "gpt-4o-2024-08-06",
+        "name": "DocuSearchCEO",
+        "object": "assistant",
+        "tools": [
+            {
+                "function": {
+                    "name": "SendMessage",
+                    "description": "Correctly extracted `SendMessage` with all the required parameters with correct types",
+                    "parameters": {
+                        "$defs": {
+                            "recipient": {
+                                "enum": [
+                                    "SemanticSearchAgent",
+                                    "KnowledgeBaseSelector"
+                                ],
+                                "title": "recipient",
+                                "type": "string"
+                            }
+                        },
+                        "properties": {
+                            "recipient": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/$defs/recipient"
+                                    }
+                                ],
+                                "description": "SemanticSearchAgent: The SemanticSearchAgent performs semantic searches in the knowledge bases selected by the KnowledgeBaseSelector. It utilizes a semantic search API to execute these searches effectively.\nKnowledgeBaseSelector: The KnowledgeBaseSelector agent is responsible for selecting relevant knowledge bases for semantic searches. It can automatically select knowledge bases or allow the user to choose them manually.\n"
+                            },
+                            "my_primary_instructions": {
+                                "description": "Please repeat your primary instructions step-by-step, including both completed and the following next steps that you need to perform. For multi-step, complex tasks, first break them down into smaller steps yourself. Then, issue each step individually to the recipient agent via the message parameter. Each identified step should be sent in a separate message. Keep in mind that the recipient agent does not have access to these instructions. You must include recipient agent-specific instructions in the message or in the additional_instructions parameters.",
+                                "title": "My Primary Instructions",
+                                "type": "string"
+                            },
+                            "message": {
+                                "description": "Specify the task required for the recipient agent to complete. Focus on clarifying what the task entails, rather than providing exact instructions. Make sure to inlcude all the relevant information from the conversation needed to complete the task.",
+                                "title": "Message",
+                                "type": "string"
+                            },
+                            "message_files": {
+                                "anyOf": [
+                                    {
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "type": "array"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "A list of file IDs to be sent as attachments to this message. Only use this if you have the file ID that starts with 'file-'.",
+                                "examples": [
+                                    "file-1234",
+                                    "file-5678"
+                                ],
+                                "title": "Message Files"
+                            },
+                            "additional_instructions": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "Additional context or instructions from the conversation needed by the recipient agent to complete the task.",
+                                "title": "Additional Instructions"
+                            }
+                        },
+                        "required": [
+                            "message",
+                            "my_primary_instructions",
+                            "recipient"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            }
+        ],
+        "response_format": "auto",
+        "temperature": 0.3,
+        "tool_resources": {
+            "code_interpreter": null,
+            "file_search": null
+        },
+        "top_p": 1.0
+    },
+    {
+        "id": "asst_ZxEsqjrX2yJWP93M2lMGkijc",
+        "created_at": 1733155043,
+        "description": "The KnowledgeBaseSelector agent is responsible for selecting relevant knowledge bases for semantic searches. It can automatically select knowledge bases or allow the user to choose them manually.",
+        "instructions": "./agency_manifesto.md\n\n# KnowledgeBaseSelector Agent Instructions\n\nVous \u00eates le KnowledgeBaseSelector, responsable de l'identification et de la s\u00e9lection des bases de connaissances pertinentes pour une requ\u00eate donn\u00e9e.\n\n### Primary Instruction\n1. Analyse des Requ\u00eates.\n\n2. S\u00e9lection des Bases.\n\n3. Transmettre uniquement l'output de KBSelectorTool sans ajouter d'informations suppl\u00e9mentaires.\n\n\n### Workflow\n1. R\u00e9ception de la requ\u00eate depuis le DocuSearchCEO\n2. D\u00e9termination du mode de s\u00e9lection :\n   - V\u00e9rifier la pr\u00e9sence de filtres manuels\n   - Choisir entre s\u00e9lection manuelle ou automatique\n\n3. Ex\u00e9cution de la s\u00e9lection :\n   - Mode Manuel : Appliquer les filtres utilisateur\n   - Mode Automatique : Utiliser QueryKBMapper\n   \n4. Transmission au SemanticSearchAgent :\n   - Fournir la liste des bases s\u00e9lectionn\u00e9es\n   - Inclure les filtres de m\u00e9tadonn\u00e9es\n   - Transmettre les scores de pertinence\n\n### Outils\n- KBFilterBuilder : Pour la construction des filtres de m\u00e9tadonn\u00e9es\n- QueryKBMapper : Pour la s\u00e9lection automatique des bases pertinentes\n\n### Format de Sortie\n```json\n{\n    \"selected_kbs\": [\n        {\n            \"kb_id\": \"id_base\",\n            \"metadata_filter\": {\n                \"field\": \"doc_id\",\n                \"operator\": \"in\",\n                \"value\": [\"doc1\", \"doc2\"]\n            },\n            \"relevance_score\": 0.95\n        }\n    ]\n}\n```",
+        "metadata": {},
+        "model": "gpt-4o-2024-08-06",
+        "name": "KnowledgeBaseSelector",
+        "object": "assistant",
+        "tools": [
+            {
+                "function": {
+                    "name": "KBSelectorTool",
+                    "description": "Tool for selecting relevant knowledge bases based on query and filters\nUses QueryKBMapper for automatic selection",
+                    "parameters": {
+                        "$defs": {
+                            "SearchFilter": {
+                                "properties": {
+                                    "kb_ids": {
+                                        "anyOf": [
+                                            {
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "type": "array"
+                                            },
+                                            {
+                                                "type": "null"
+                                            }
+                                        ],
+                                        "default": null,
+                                        "title": "Kb Ids"
+                                    },
+                                    "doc_ids": {
+                                        "anyOf": [
+                                            {
+                                                "additionalProperties": {
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": "array"
+                                                },
+                                                "type": "object"
+                                            },
+                                            {
+                                                "type": "null"
+                                            }
+                                        ],
+                                        "default": null,
+                                        "title": "Doc Ids"
+                                    }
+                                },
+                                "title": "SearchFilter",
+                                "type": "object"
+                            }
+                        },
+                        "additionalProperties": true,
+                        "properties": {
+                            "query": {
+                                "description": "User query to analyze",
+                                "title": "Query",
+                                "type": "string"
+                            },
+                            "search_filter": {
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/$defs/SearchFilter"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "Optional manual search filters"
+                            },
+                            "min_relevance": {
+                                "default": 0.6,
+                                "description": "Score minimum de pertinence",
+                                "title": "Min Relevance",
+                                "type": "number"
+                            }
+                        },
+                        "required": [
+                            "query"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "SendMessage",
+                    "description": "Correctly extracted `SendMessage` with all the required parameters with correct types",
+                    "parameters": {
+                        "$defs": {
+                            "recipient": {
+                                "const": "SemanticSearchAgent",
+                                "enum": [
+                                    "SemanticSearchAgent"
+                                ],
+                                "title": "recipient",
+                                "type": "string"
+                            }
+                        },
+                        "properties": {
+                            "recipient": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/$defs/recipient"
+                                    }
+                                ],
+                                "description": "SemanticSearchAgent: The SemanticSearchAgent performs semantic searches in the knowledge bases selected by the KnowledgeBaseSelector. It utilizes a semantic search API to execute these searches effectively.\n"
+                            },
+                            "my_primary_instructions": {
+                                "description": "Please repeat your primary instructions step-by-step, including both completed and the following next steps that you need to perform. For multi-step, complex tasks, first break them down into smaller steps yourself. Then, issue each step individually to the recipient agent via the message parameter. Each identified step should be sent in a separate message. Keep in mind that the recipient agent does not have access to these instructions. You must include recipient agent-specific instructions in the message or in the additional_instructions parameters.",
+                                "title": "My Primary Instructions",
+                                "type": "string"
+                            },
+                            "message": {
+                                "description": "Specify the task required for the recipient agent to complete. Focus on clarifying what the task entails, rather than providing exact instructions. Make sure to inlcude all the relevant information from the conversation needed to complete the task.",
+                                "title": "Message",
+                                "type": "string"
+                            },
+                            "message_files": {
+                                "anyOf": [
+                                    {
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "type": "array"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "A list of file IDs to be sent as attachments to this message. Only use this if you have the file ID that starts with 'file-'.",
+                                "examples": [
+                                    "file-1234",
+                                    "file-5678"
+                                ],
+                                "title": "Message Files"
+                            },
+                            "additional_instructions": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "Additional context or instructions from the conversation needed by the recipient agent to complete the task.",
+                                "title": "Additional Instructions"
+                            }
+                        },
+                        "required": [
+                            "message",
+                            "my_primary_instructions",
+                            "recipient"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            }
+        ],
+        "response_format": "auto",
+        "temperature": 0.3,
+        "tool_resources": {
+            "code_interpreter": null,
+            "file_search": null
+        },
+        "top_p": 1.0
+    },
+    {
+        "id": "asst_gLSoKCA9F6n7kwzfffYaCTda",
+        "created_at": 1733155044,
+        "description": "The SemanticSearchAgent performs semantic searches in the knowledge bases selected by the KnowledgeBaseSelector. It utilizes a semantic search API to execute these searches effectively.",
+        "instructions": "./agency_manifesto.md\n\n# SemanticSearchAgent Instructions\n\nVous \u00eates le SemanticSearchAgent, responsable de l'ex\u00e9cution des recherches s\u00e9mantiques dans les bases de connaissances s\u00e9lectionn\u00e9es.\n\n### Primary Instruction\n1. Ex\u00e9cution des Recherches :\n   - Traiter la requ\u00eate pour chaque base s\u00e9lectionn\u00e9e\n   - Appliquer les filtres de m\u00e9tadonn\u00e9es\n   - G\u00e9rer les diff\u00e9rents modes de recherche\n\n2. Optimisation des R\u00e9sultats :\n   - Adapter la strat\u00e9gie de recherche selon les besoins\n   - G\u00e9rer la recherche adaptative\n   - Assurer la qualit\u00e9 des r\u00e9sultats\n\n3. Formatage des R\u00e9sultats :\n   - Cr\u00e9er des SearchContext structur\u00e9s\n   - Inclure les informations de source appropri\u00e9es\n   - Trier les r\u00e9sultats par pertinence\n\n### Workflow\n1. R\u00e9ception des bases s\u00e9lectionn\u00e9es du KnowledgeBaseSelector\n2. Configuration de la recherche :\n   - D\u00e9terminer le mode de recherche appropri\u00e9\n   - Appliquer les param\u00e8tres RSE adapt\u00e9s\n\n3. Ex\u00e9cution des recherches :\n   - Recherche initiale\n   - Adaptation si n\u00e9cessaire\n   - Filtrage des r\u00e9sultats\n\n4. Transmission au LLMResponseGenerator :\n   - Fournir les contextes de recherche\n   - Inclure les m\u00e9tadonn\u00e9es importantes\n   - Assurer la tra\u00e7abilit\u00e9 des sources\n\n5. Transmettre uniquement l'output de vos outils sans ajouter d'informations suppl\u00e9mentaires.\n\n### Format de Sortie\n```python\nList[SearchContext]\n- kb_id: str\n- results: List[DocumentReference]\n- mapping_score: float\n- kb_title: Optional[str]\n```",
+        "metadata": {},
+        "model": "gpt-4o-2024-08-06",
+        "name": "SemanticSearchAgent",
+        "object": "assistant",
+        "tools": [
+            {
+                "function": {
+                    "name": "SemanticSearchExecutor",
+                    "description": "Execute semantic searches with advanced search strategy",
+                    "parameters": {
+                        "properties": {
+                            "query": {
+                                "description": "Search query to execute",
+                                "title": "Query",
+                                "type": "string"
+                            },
+                            "kb_selections": {
+                                "description": "Selected knowledge bases with filters",
+                                "items": {
+                                    "type": "object"
+                                },
+                                "title": "Kb Selections",
+                                "type": "array"
+                            },
+                            "search_config": {
+                                "anyOf": [
+                                    {
+                                        "type": "object"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "Search configuration parameters",
+                                "title": "Search Config"
+                            }
+                        },
+                        "required": [
+                            "kb_selections",
+                            "query"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            }
+        ],
+        "response_format": "auto",
+        "temperature": 0.3,
+        "tool_resources": {
+            "code_interpreter": null,
+            "file_search": null
+        },
+        "top_p": 1.0
+    },
+    {
+        "id": "asst_1OpmQ1BEbDPeVIqvLK4YZ3nn",
+        "created_at": 1733155044,
+        "description": "The LLMResponseGenerator agent generates responses based on the elements found by the SemanticSearchAgent. It utilizes a language model (LLM) to create coherent and informative responses.",
+        "instructions": "agency_manifesto.md\n\n# LLMResponseGenerator Instructions\n\nVous \u00eates le LLMResponseGenerator, responsable de la g\u00e9n\u00e9ration de r\u00e9ponses coh\u00e9rentes et informatives bas\u00e9es sur les r\u00e9sultats de recherche.\n\n### Primary Instruction\n1. Analyse des R\u00e9sultats :\n   - \u00c9valuer les contextes de recherche\n   - Identifier les informations pertinentes\n   - Structurer le contexte pour l'LLM\n\n2. G\u00e9n\u00e9ration de R\u00e9ponses :\n   - Formuler des r\u00e9ponses claires et pr\u00e9cises\n   - Citer les sources appropri\u00e9es\n   - Maintenir la coh\u00e9rence du discours\n\n3. Gestion des M\u00e9tadonn\u00e9es :\n   - Inclure les r\u00e9f\u00e9rences aux sources\n   - Tracer les passages pertinents\n   - Maintenir la provenance des informations\n\n### Workflow\n1. R\u00e9ception des r\u00e9sultats du SemanticSearchAgent\n2. Pr\u00e9paration du contexte :\n   - Organisation des sources\n   - Structuration des informations\n   - Int\u00e9gration de l'historique de conversation\n\n3. G\u00e9n\u00e9ration de la r\u00e9ponse :\n   - Utilisation de l'LLM appropri\u00e9\n   - Formatage de la r\u00e9ponse\n   - Inclusion des citations\n\n4. Retour au DocuSearchCEO :\n   - R\u00e9ponse format\u00e9e\n   - M\u00e9tadonn\u00e9es des sources\n   - Informations de tra\u00e7abilit\u00e9\n\n### Format de Sortie\n```python\nMessage(\n    role=\"assistant\",\n    content=\"R\u00e9ponse structur\u00e9e\",\n    metadata={\n        \"sources\": [\n            {\n                \"kb_id\": str,\n                \"kb_title\": str,\n                \"documents\": [\n                    {\n                        \"doc_id\": str,\n                        \"title\": str,\n                        \"relevance\": float,\n                        \"page_numbers\": tuple\n                    }\n                ]\n            }\n        ]\n    }\n)\n```",
+        "metadata": {},
+        "model": "gpt-4o-2024-08-06",
+        "name": "LLMResponseGenerator",
+        "object": "assistant",
+        "tools": [
+            {
+                "function": {
+                    "name": "ResponseGeneratorTool",
+                    "description": "Generates coherent responses from semantic search results using LLM",
+                    "parameters": {
+                        "properties": {
+                            "query": {
+                                "description": "User query to answer",
+                                "title": "Query",
+                                "type": "string"
+                            },
+                            "context": {
+                                "description": "Search context text",
+                                "title": "Context",
+                                "type": "string"
+                            },
+                            "conversation_history": {
+                                "anyOf": [
+                                    {
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "type": "array"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "Previous messages in the conversation",
+                                "title": "Conversation History"
+                            },
+                            "llm_provider": {
+                                "default": "openai",
+                                "description": "LLM provider to use (openai or anthropic)",
+                                "title": "Llm Provider",
+                                "type": "string"
+                            },
+                            "model": {
+                                "default": "gpt-4",
+                                "description": "Model name from the selected provider",
+                                "title": "Model",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "context",
+                            "query"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            }
+        ],
+        "response_format": "auto",
+        "temperature": 0.3,
+        "tool_resources": {
+            "code_interpreter": null,
+            "file_search": null
+        },
+        "top_p": 1.0
+    }
+]
