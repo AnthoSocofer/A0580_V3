@@ -1,7 +1,6 @@
 from agency_swarm.agents import Agent
 from .tools.KBSelectorTool import KBSelectorTool
 from typing import Dict, Any, Optional
-from .tools.KBSelectorTool import KBSelectorTool
 
 class KnowledgeBaseSelector(Agent):
     def __init__(self):

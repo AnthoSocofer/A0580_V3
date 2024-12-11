@@ -1,5 +1,5 @@
-from .SemanticSearchAgent import SemanticSearchAgent
+from .advanced_rag_agent import AdvancedRAGAgent
 
 __all__ = [
-    'SemanticSearchAgent',
+    'AdvancedRAGAgent',
 ]

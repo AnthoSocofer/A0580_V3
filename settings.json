@@ -3,7 +3,7 @@
         "id": "asst_S6FsdGoiy8VcS7Ucdj69Ypao",
         "created_at": 1733155043,
         "description": "The DocuSearchCEO agent coordinates the other agents and manages interactions with the user. It communicates with all other agents in the agency to ensure seamless operation and goal achievement.",
-        "instructions": "./agency_manifesto.md\n\n# DocuSearchCEO Agent Instructions\n\nVous \u00eates le DocuSearchCEO, responsable de la coordination du processus de recherche et de r\u00e9ponse aux requ\u00eates utilisateur.\n\n\n### Primary Instruction\n1. R\u00e9ception de la requ\u00eate utilisateur\n2. Transmission au KnowledgeBaseSelector :\n   - Envoyer la requ\u00eate\n   - Transmettre les filtres de recherche si pr\u00e9sents\n   \n3. Validation des r\u00e9sultats \u00e0 chaque \u00e9tape :\n   - V\u00e9rifier que la s\u00e9lection des bases est pertinente\n   - S'assurer que la recherche s\u00e9mantique produit des r\u00e9sultats utiles\n   - Contr\u00f4ler la qualit\u00e9 de la r\u00e9ponse finale\n\n4. Communication avec l'utilisateur :\n   - Fournir des r\u00e9ponses claires et structur\u00e9es\n   - Inclure les sources des informations\n   - G\u00e9rer les demandes de clarification\n\n5. Gestion des Erreurs :\n   - Identifier les probl\u00e8mes dans le processus\n   - Demander des clarifications \u00e0 l'utilisateur si n\u00e9cessaire\n   - G\u00e9rer les cas o\u00f9 aucune r\u00e9ponse pertinente n'est trouv\u00e9e\n\n### Interaction avec les Autres Agents\n- KnowledgeBaseSelector : Pour la s\u00e9lection des bases pertinentes\n- SemanticSearchAgent : Pour la recherche d'informations\n- LLMResponseGenerator : Pour la g\u00e9n\u00e9ration de r\u00e9ponses coh\u00e9rentes",
+        "instructions": "./agency_manifesto.md\n\n# DocuSearchCEO Agent Instructions\n\nVous \u00eates le DocuSearchCEO, responsable de la coordination du processus de recherche et de r\u00e9ponse aux requ\u00eates utilisateur.\n\n\n### Primary Instruction\n1. R\u00e9ception de la requ\u00eate utilisateur\n2. Transmission a AdvancedRAGAgent des param\u00e8tre query utilisateur et filtre\n   \n3. Validation des r\u00e9sultats \u00e0 chaque \u00e9tape :\n   - V\u00e9rifier que la s\u00e9lection des bases est pertinente\n   - S'assurer que la recherche s\u00e9mantique produit des r\u00e9sultats utiles\n   - Contr\u00f4ler la qualit\u00e9 de la r\u00e9ponse finale\n\n4. Communication avec l'utilisateur :\n   - Fournir des r\u00e9ponses claires et structur\u00e9es\n   - Inclure les sources des informations\n   - G\u00e9rer les demandes de clarification\n\n5. Gestion des Erreurs :\n   - Identifier les probl\u00e8mes dans le processus\n   - Demander des clarifications \u00e0 l'utilisateur si n\u00e9cessaire\n   - G\u00e9rer les cas o\u00f9 aucune r\u00e9ponse pertinente n'est trouv\u00e9e\n",
         "metadata": {},
         "model": "gpt-4o-2024-08-06",
         "name": "DocuSearchCEO",
@@ -16,9 +16,9 @@
                     "parameters": {
                         "$defs": {
                             "recipient": {
+                                "const": "AdvancedRAGAgent",
                                 "enum": [
-                                    "SemanticSearchAgent",
-                                    "KnowledgeBaseSelector"
+                                    "AdvancedRAGAgent"
                                 ],
                                 "title": "recipient",
                                 "type": "string"
@@ -31,7 +31,7 @@
                                         "$ref": "#/$defs/recipient"
                                     }
                                 ],
-                                "description": "SemanticSearchAgent: The SemanticSearchAgent performs semantic searches in the knowledge bases selected by the KnowledgeBaseSelector. It utilizes a semantic search API to execute these searches effectively.\nKnowledgeBaseSelector: The KnowledgeBaseSelector agent is responsible for selecting relevant knowledge bases for semantic searches. It can automatically select knowledge bases or allow the user to choose them manually.\n"
+                                "description": "AdvancedRAGAgent: Cet agent est con\u00e7u pour s\u00e9lectionner les bases de connaissances les plus pertinentes afin de r\u00e9cup\u00e9rer efficacement des informations \u00e0 partir d'une requ\u00eate utilisateur\n"
                             },
                             "my_primary_instructions": {
                                 "description": "Please repeat your primary instructions step-by-step, including both completed and the following next steps that you need to perform. For multi-step, complex tasks, first break them down into smaller steps yourself. Then, issue each step individually to the recipient agent via the message parameter. Each identified step should be sent in a separate message. Keep in mind that the recipient agent does not have access to these instructions. You must include recipient agent-specific instructions in the message or in the additional_instructions parameters.",
@@ -280,7 +280,7 @@
         "id": "asst_gLSoKCA9F6n7kwzfffYaCTda",
         "created_at": 1733155044,
         "description": "The SemanticSearchAgent performs semantic searches in the knowledge bases selected by the KnowledgeBaseSelector. It utilizes a semantic search API to execute these searches effectively.",
-        "instructions": "./agency_manifesto.md\n\n# SemanticSearchAgent Instructions\n\nVous \u00eates le SemanticSearchAgent, responsable de l'ex\u00e9cution des recherches s\u00e9mantiques dans les bases de connaissances s\u00e9lectionn\u00e9es.\n\n### Primary Instruction\n1. Ex\u00e9cution des Recherches :\n   - Traiter la requ\u00eate pour chaque base s\u00e9lectionn\u00e9e\n   - Appliquer les filtres de m\u00e9tadonn\u00e9es\n   - G\u00e9rer les diff\u00e9rents modes de recherche\n\n2. Optimisation des R\u00e9sultats :\n   - Adapter la strat\u00e9gie de recherche selon les besoins\n   - G\u00e9rer la recherche adaptative\n   - Assurer la qualit\u00e9 des r\u00e9sultats\n\n3. Formatage des R\u00e9sultats :\n   - Cr\u00e9er des SearchContext structur\u00e9s\n   - Inclure les informations de source appropri\u00e9es\n   - Trier les r\u00e9sultats par pertinence\n\n### Workflow\n1. R\u00e9ception des bases s\u00e9lectionn\u00e9es du KnowledgeBaseSelector\n2. Configuration de la recherche :\n   - D\u00e9terminer le mode de recherche appropri\u00e9\n   - Appliquer les param\u00e8tres RSE adapt\u00e9s\n\n3. Ex\u00e9cution des recherches :\n   - Recherche initiale\n   - Adaptation si n\u00e9cessaire\n   - Filtrage des r\u00e9sultats\n\n4. Transmission au LLMResponseGenerator :\n   - Fournir les contextes de recherche\n   - Inclure les m\u00e9tadonn\u00e9es importantes\n   - Assurer la tra\u00e7abilit\u00e9 des sources\n\n5. Transmettre uniquement l'output de vos outils sans ajouter d'informations suppl\u00e9mentaires.\n\n### Format de Sortie\n```python\nList[SearchContext]\n- kb_id: str\n- results: List[DocumentReference]\n- mapping_score: float\n- kb_title: Optional[str]\n```",
+        "instructions": "./agency_manifesto.md\n\n./instructions_semantic_search.md",
         "metadata": {},
         "model": "gpt-4o-2024-08-06",
         "name": "SemanticSearchAgent",
@@ -321,6 +321,87 @@
                         },
                         "required": [
                             "kb_selections",
+                            "query"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "KBSelectorTool",
+                    "description": "Tool for selecting relevant knowledge bases based on query and filters\nUses QueryKBMapper for automatic selection",
+                    "parameters": {
+                        "$defs": {
+                            "SearchFilter": {
+                                "properties": {
+                                    "kb_ids": {
+                                        "anyOf": [
+                                            {
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "type": "array"
+                                            },
+                                            {
+                                                "type": "null"
+                                            }
+                                        ],
+                                        "default": null,
+                                        "title": "Kb Ids"
+                                    },
+                                    "doc_ids": {
+                                        "anyOf": [
+                                            {
+                                                "additionalProperties": {
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": "array"
+                                                },
+                                                "type": "object"
+                                            },
+                                            {
+                                                "type": "null"
+                                            }
+                                        ],
+                                        "default": null,
+                                        "title": "Doc Ids"
+                                    }
+                                },
+                                "title": "SearchFilter",
+                                "type": "object"
+                            }
+                        },
+                        "additionalProperties": true,
+                        "properties": {
+                            "query": {
+                                "description": "User query to analyze",
+                                "title": "Query",
+                                "type": "string"
+                            },
+                            "search_filter": {
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/$defs/SearchFilter"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "Optional manual search filters"
+                            },
+                            "min_relevance": {
+                                "default": 0.6,
+                                "description": "Score minimum de pertinence",
+                                "title": "Min Relevance",
+                                "type": "number"
+                            }
+                        },
+                        "required": [
                             "query"
                         ],
                         "type": "object"
@@ -395,6 +476,136 @@
                         },
                         "required": [
                             "context",
+                            "query"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            }
+        ],
+        "response_format": "auto",
+        "temperature": 0.3,
+        "tool_resources": {
+            "code_interpreter": null,
+            "file_search": null
+        },
+        "top_p": 1.0
+    },
+    {
+        "id": "asst_1mUZ5jHx4ix1N3oI5JaFfJMB",
+        "created_at": 1733410509,
+        "description": "Cet agent est con\u00e7u pour s\u00e9lectionner les bases de connaissances les plus pertinentes afin de r\u00e9cup\u00e9rer efficacement des informations \u00e0 partir d'une requ\u00eate utilisateur",
+        "instructions": "./agency_manifesto.md\n\n# SemanticSearchAgent Instructions\n\nEn tant qu'agent de \"Retrieval Augmented Generation\" avanc\u00e9, tu es \u00e9quip\u00e9 d'outils sp\u00e9cialis\u00e9s pour effectuer de la recherche documentaire. Ton objectif principal est de r\u00e9pondre \u00e0 la question de l'utilisateur en lui indiquant les sources de tes informations.\n\n### Primary Instruction\n1. Liste des bases de connaissance pertinentes pour r\u00e9pondre \u00e0 la question de l'utilisateur: Utilise l'outil KBSelectorTool. \n\n2. Retrouve les documents pour r\u00e9pondre \u00e0 la question : en argument de SemanticSearchExecutor, utilise le r\u00e9sultat de KBSelectorTool et la question de l'utilisateur.\n\n3. R\u00e9ponse \u00e0 l'utilisateur :  Renvoie les documents avec leurs sources, retrouv\u00e9s par SemanticSearchExecutor\n\n",
+        "metadata": {},
+        "model": "gpt-4o-2024-08-06",
+        "name": "AdvancedRAGAgent",
+        "object": "assistant",
+        "tools": [
+            {
+                "function": {
+                    "name": "SemanticSearchExecutor",
+                    "description": "Outil qui execute des recherches documentaire dans des bases de connaissances \u00e0 partir de la question de l'utilisateur. ",
+                    "parameters": {
+                        "properties": {
+                            "query": {
+                                "description": "Search query to execute",
+                                "title": "Query",
+                                "type": "string"
+                            },
+                            "kb_selections": {
+                                "description": "Selected knowledge bases with filters",
+                                "items": {
+                                    "type": "object"
+                                },
+                                "title": "Kb Selections",
+                                "type": "array"
+                            }
+                        },
+                        "required": [
+                            "kb_selections",
+                            "query"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "KBSelectorTool",
+                    "description": "Outil pour s\u00e9lectionner des bases de connaissances pertinentes en fonction de la question utilisateur et des filtres.",
+                    "parameters": {
+                        "$defs": {
+                            "SearchFilter": {
+                                "properties": {
+                                    "kb_ids": {
+                                        "anyOf": [
+                                            {
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "type": "array"
+                                            },
+                                            {
+                                                "type": "null"
+                                            }
+                                        ],
+                                        "default": null,
+                                        "title": "Kb Ids"
+                                    },
+                                    "doc_ids": {
+                                        "anyOf": [
+                                            {
+                                                "additionalProperties": {
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": "array"
+                                                },
+                                                "type": "object"
+                                            },
+                                            {
+                                                "type": "null"
+                                            }
+                                        ],
+                                        "default": null,
+                                        "title": "Doc Ids"
+                                    }
+                                },
+                                "title": "SearchFilter",
+                                "type": "object"
+                            }
+                        },
+                        "additionalProperties": true,
+                        "properties": {
+                            "query": {
+                                "description": "User query to analyze",
+                                "title": "Query",
+                                "type": "string"
+                            },
+                            "search_filter": {
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/$defs/SearchFilter"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "Optional manual search filters"
+                            },
+                            "min_relevance": {
+                                "default": 0.6,
+                                "description": "Score minimum de pertinence",
+                                "title": "Min Relevance",
+                                "type": "number"
+                            }
+                        },
+                        "required": [
                             "query"
                         ],
                         "type": "object"

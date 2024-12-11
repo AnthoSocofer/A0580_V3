@@ -1,0 +1,37 @@
+{
+    "title": "A0322 - RATP",
+    "description": "Affaire A0322 regroupant les documents techniques du projet RATP pour le locotrateur \u00e9lectrique",
+    "language": "fr",
+    "supp_id": "",
+    "created_on": 1732794174,
+    "components": {
+        "embedding_model": {
+            "subclass_name": "OpenAIEmbedding",
+            "dimension": 1536,
+            "model": "text-embedding-3-small"
+        },
+        "reranker": {
+            "subclass_name": "CohereReranker",
+            "model": "rerank-multilingual-v3.0"
+        },
+        "auto_context_model": {
+            "subclass_name": "OpenAIChatAPI",
+            "model": "gpt-4o-mini",
+            "temperature": 0.2,
+            "max_tokens": 1000
+        },
+        "vector_db": {
+            "subclass_name": "ChromaDB",
+            "kb_id": "A0322_demo"
+        },
+        "chunk_db": {
+            "subclass_name": "SQLiteDB",
+            "kb_id": "A0322_demo",
+            "storage_directory": "/home/asa/repo/git/A0580/doc_assistant/data/knowledge_bases/chromadb"
+        },
+        "file_system": {
+            "subclass_name": "LocalFileSystem",
+            "base_path": "/home/asa/repo/git/A0580/doc_assistant/data/knowledge_bases/chromadb/page_images"
+        }
+    }
+}

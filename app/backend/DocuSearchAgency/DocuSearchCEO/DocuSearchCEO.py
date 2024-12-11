@@ -19,16 +19,9 @@ class DocuSearchCEO(Agent):
     
     def response_validator(self, message: Dict[str, Any]) -> Dict[str, Any]:
         """Valide et formate les réponses du CEO"""
-        if not isinstance(message, dict):
-            raise ValueError("Le message doit être un dictionnaire")
-            
+
         required_fields = ['role', 'content']
         if not all(field in message for field in required_fields):
             raise ValueError(f"Message invalide. Champs requis : {required_fields}")
             
         return message
-
-    def process_query(self, query: str) -> Dict[str, Any]:
-        """Traite la requête initiale et coordonne le workflow"""
-        # Implémentation du traitement de la requête
-        pass

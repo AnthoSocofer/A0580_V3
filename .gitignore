@@ -119,7 +119,7 @@ notebooks
 doc_assistant/tests
 test
 backup
-data
+
 # Spyder project settings
 .spyderproject
 .spyproject

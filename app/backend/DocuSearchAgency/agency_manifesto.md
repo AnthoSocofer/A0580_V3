@@ -2,7 +2,7 @@
 
 Cette agence est responsable de la recherche et de l'analyse de documents techniques.
 
-## Objectifs
+## Primary objectif
 - Analyser les requêtes des utilisateurs
 - Sélectionner les bases de connaissances pertinentes
 - Fournir des réponses précises basées sur les documents
@@ -10,8 +10,5 @@ Cette agence est responsable de la recherche et de l'analyse de documents techni
 ## Agents et Communication
 - DocuSearchCEO : Agent principal coordonnant les opérations
   - Point d'entrée pour les interactions utilisateur
-  - Peut communiquer avec KnowledgeBaseSelector
+  - Peut communiquer avec AdvancedRAGAgent
 
-- KnowledgeBaseSelector : Agent spécialisé
-  - Sélectionne les bases de connaissances pertinentes
-  - Reçoit les instructions du CEO

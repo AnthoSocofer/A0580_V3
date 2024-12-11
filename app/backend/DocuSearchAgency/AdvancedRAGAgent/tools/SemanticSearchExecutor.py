@@ -6,7 +6,7 @@ from .utils import DocumentReference, SearchContext, SearchMode, SearchConfig, K
 from collections import defaultdict
 
 class SemanticSearchExecutor(BaseTool):
-    """Execute semantic searches with advanced search strategy"""
+    """Outil qui execute des recherches documentaire dans des bases de connaissances à partir de la question de l'utilisateur. """
     
     query: str = Field(
         ..., 
@@ -18,10 +18,10 @@ class SemanticSearchExecutor(BaseTool):
         description="Selected knowledge bases with filters"
     )
     
-    search_config: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Search configuration parameters"
-    )
+    # search_config: Optional[Dict[str, Any]] = Field(
+    #     None,
+    #     description="Search configuration parameters"
+    # )
 
     @field_validator('kb_selections')
     def validate_kb_selections(cls, v):
@@ -55,11 +55,11 @@ class SemanticSearchExecutor(BaseTool):
             
             # Initialize search configuration with defaults if not provided
             config = SearchConfig(
-                mode=SearchMode[self.search_config.get('mode', 'BALANCED').upper()],
-                min_relevance=self.search_config.get('min_relevance', 0.6),
-                max_segments_per_doc=self.search_config.get('max_segments_per_doc', 3),
-                adaptive_recall=self.search_config.get('adaptive_recall', True),
-                enable_fallback=self.search_config.get('enable_fallback', True)
+                mode='BALANCED',
+                min_relevance= 0.6,
+                max_segments_per_doc= 3,
+                adaptive_recall=True,
+                enable_fallback=True
             )
 
             for selection in self.kb_selections:

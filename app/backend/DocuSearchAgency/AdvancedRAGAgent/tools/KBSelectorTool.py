@@ -16,8 +16,7 @@ from pydantic import Field, ConfigDict, field_validator
 
 class KBSelectorTool(BaseTool):
     """
-    Tool for selecting relevant knowledge bases based on query and filters
-    Uses QueryKBMapper for automatic selection
+    Outil pour sélectionner des bases de connaissances pertinentes en fonction de la question utilisateur et des filtres.
     """
     model_config = ConfigDict(
         arbitrary_types_allowed=True,

@@ -1,0 +1,37 @@
+{
+    "title": "Infrabel",
+    "description": "Affaire A0569 contenant le cahier des charge Infrabel pour le locotracteur de la Belgique",
+    "language": "fr",
+    "supp_id": "",
+    "created_on": 1732720924,
+    "components": {
+        "embedding_model": {
+            "subclass_name": "OpenAIEmbedding",
+            "dimension": 1536,
+            "model": "text-embedding-3-small"
+        },
+        "reranker": {
+            "subclass_name": "CohereReranker",
+            "model": "rerank-multilingual-v3.0"
+        },
+        "auto_context_model": {
+            "subclass_name": "OpenAIChatAPI",
+            "model": "gpt-4o-mini",
+            "temperature": 0.2,
+            "max_tokens": 1000
+        },
+        "vector_db": {
+            "subclass_name": "ChromaDB",
+            "kb_id": "CCTP_A0579"
+        },
+        "chunk_db": {
+            "subclass_name": "SQLiteDB",
+            "kb_id": "CCTP_A0579",
+            "storage_directory": "/home/asa/repo/git/A0580/doc_assistant/data/knowledge_bases/chromadb"
+        },
+        "file_system": {
+            "subclass_name": "LocalFileSystem",
+            "base_path": "/home/asa/repo/git/A0580/doc_assistant/data/knowledge_bases/chromadb/page_images"
+        }
+    }
+}

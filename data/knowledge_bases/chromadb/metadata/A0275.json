@@ -1,0 +1,37 @@
+{
+    "title": "M\u00e9tro Marseille",
+    "description": "Affaire A0275 contient les documents techniques du projet RTM, sur la conception des machines d'entretien du m\u00e9tro de la ville de Marseille",
+    "language": "fr",
+    "supp_id": "",
+    "created_on": 1732636943,
+    "components": {
+        "embedding_model": {
+            "subclass_name": "OpenAIEmbedding",
+            "dimension": 1536,
+            "model": "text-embedding-3-small"
+        },
+        "reranker": {
+            "subclass_name": "CohereReranker",
+            "model": "rerank-multilingual-v3.0"
+        },
+        "auto_context_model": {
+            "subclass_name": "AnthropicChatAPI",
+            "model": "claude-3-haiku-20240307",
+            "temperature": 0.2,
+            "max_tokens": 1000
+        },
+        "vector_db": {
+            "subclass_name": "ChromaDB",
+            "kb_id": "A0275"
+        },
+        "chunk_db": {
+            "subclass_name": "SQLiteDB",
+            "kb_id": "A0275",
+            "storage_directory": "/home/asa/repo/git/A0580/doc_assistant/data/knowledge_bases/chromadb"
+        },
+        "file_system": {
+            "subclass_name": "LocalFileSystem",
+            "base_path": "/home/asa/repo/git/A0580/doc_assistant/data/knowledge_bases/chromadb/page_images"
+        }
+    }
+}
