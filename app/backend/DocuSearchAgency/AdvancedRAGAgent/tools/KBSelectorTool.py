@@ -49,6 +49,17 @@ class KBSelectorTool(BaseTool):
     def run(self) -> Dict[str, List[Dict[str, Any]]]:
         """
         Execute KB selection using either manual filters or QueryKBMapper
+        Returns:
+            {
+                "selected_kbs": [
+                    {
+                        "kb_id": str,
+                        "metadata_filter": Optional[Dict],
+                        "relevance_score": float
+                    },
+                    ...
+                ]
+            }
         """
         try:
             print(f"[KBSelectorTool] Démarrage avec query: {self.query}")

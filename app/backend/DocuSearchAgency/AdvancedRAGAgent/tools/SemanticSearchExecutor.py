@@ -6,46 +6,32 @@ from .utils import DocumentReference, SearchContext, SearchMode, SearchConfig, K
 from collections import defaultdict
 
 class SemanticSearchExecutor(BaseTool):
-    """Outil qui execute des recherches documentaire dans des bases de connaissances à partir de la question de l'utilisateur. """
+    """Outil qui execute des recherches documentaire dans des bases de connaissances"""
     
     query: str = Field(
         ..., 
         description="Search query to execute"
     )
     
-    kb_selections: List[Dict[str, Any]] = Field(
+    selected_kbs: List[Dict[str, Any]] = Field(
         ..., 
-        description="Selected knowledge bases with filters"
+        description="Liste des bases sélectionnées avec leurs filtres et scores"
     )
-    
-    # search_config: Optional[Dict[str, Any]] = Field(
-    #     None,
-    #     description="Search configuration parameters"
-    # )
 
-    @field_validator('kb_selections')
-    def validate_kb_selections(cls, v):
+    @field_validator('selected_kbs')
+    def validate_selected_kbs(cls, v):
         if not isinstance(v, list):
-            raise ValueError("kb_selections must be a list")
+            raise ValueError("selected_kbs must be a list")
             
         for kb in v:
             if not isinstance(kb, dict):
-                raise ValueError("Each kb_selection must be a dictionary")
+                raise ValueError("Each selected_kbs must be a dictionary")
                 
             required_fields = {"kb_id", "relevance_score"}
             missing_fields = required_fields - set(kb.keys())
             if missing_fields:
-                raise ValueError(f"Missing required fields in kb_selection: {missing_fields}")
+                raise ValueError(f"Missing required fields in selected_kb: {missing_fields}")
                 
-            if not isinstance(kb["relevance_score"], (int, float)):
-                raise ValueError("relevance_score must be a number")
-                
-            if kb.get("metadata_filter"):
-                filter_fields = {"field", "operator", "value"}
-                missing_filter_fields = filter_fields - set(kb["metadata_filter"].keys())
-                if missing_filter_fields:
-                    raise ValueError(f"Invalid metadata_filter format: missing {missing_filter_fields}")
-                    
         return v
 
     def run(self) -> List[SearchContext]:
@@ -62,7 +48,7 @@ class SemanticSearchExecutor(BaseTool):
                 enable_fallback=True
             )
 
-            for selection in self.kb_selections:
+            for selection in self.selected_kbs:
                 try:
                     kb_id = selection["kb_id"]
                     kb = kb_manager.load_knowledge_base(kb_id)
@@ -159,72 +145,83 @@ class SemanticSearchExecutor(BaseTool):
         config: SearchConfig
     ) -> List[DocumentReference]:
         """Execute search with adaptive recall strategy"""
-        
-        # Initial search with base parameters
-        rse_params = self._get_rse_params(config.mode)
-        results = kb.query(
-            search_queries=[query],
-            metadata_filter=metadata_filter,
-            rse_params=rse_params
-        )
-
-        has_valid_results = bool(
-            results and 
-            any(r.get('score', 0) >= config.min_relevance for r in results)
-        )
-
-        # Try adaptive recall if needed
-        if not has_valid_results and config.adaptive_recall:
-            for mode in [SearchMode.PRECISE, SearchMode.BALANCED, SearchMode.THOROUGH, SearchMode.EXHAUSTIVE]:
-                if mode.value <= config.mode.value:
-                    continue
-                    
-                adjusted_params = self._get_rse_params(mode)
-                results = kb.query(
-                    search_queries=[query],
-                    metadata_filter=metadata_filter,
-                    rse_params=adjusted_params
-                )
+        try:
+            # S'assurer que le mode est un SearchMode valide
+            if isinstance(config.mode, str):
+                search_mode = SearchMode[config.mode.upper()]
+            else:
+                search_mode = config.mode
                 
-                if results and any(r.get('score', 0) >= config.min_relevance for r in results):
-                    has_valid_results = True
-                    break
+            # Initial search with base parameters
+            rse_params = self._get_rse_params(search_mode)
+            
+            results = kb.query(
+                search_queries=[query],
+                metadata_filter=metadata_filter,
+                rse_params=rse_params
+            )
 
-        if not has_valid_results:
-            return []
+            has_valid_results = bool(
+                results and 
+                any(r.get('score', 0) >= config.min_relevance for r in results)
+            )
 
-        # Convert results to DocumentReferences
-        doc_references = []
-        seen_segments = defaultdict(int)
-
-        for result in results:
-            if result.get('score', 0) < config.min_relevance:
-                continue
-
-            try:
-                doc_id = result["doc_id"]
-                if config.max_segments_per_doc > 0:
-                    if seen_segments[doc_id] >= config.max_segments_per_doc:
+            # Try adaptive recall if needed
+            if not has_valid_results and config.adaptive_recall:
+                for mode in [SearchMode.PRECISE, SearchMode.BALANCED, SearchMode.THOROUGH, SearchMode.EXHAUSTIVE]:
+                    if mode.value <= config.mode.value:
                         continue
-                    seen_segments[doc_id] += 1
+                        
+                    adjusted_params = self._get_rse_params(mode)
+                    results = kb.query(
+                        search_queries=[query],
+                        metadata_filter=metadata_filter,
+                        rse_params=adjusted_params
+                    )
+                    
+                    if results and any(r.get('score', 0) >= config.min_relevance for r in results):
+                        has_valid_results = True
+                        break
 
-                doc_title = kb.chunk_db.get_document_title(doc_id, result["chunk_start"]) or ""
-                doc_info = kb.chunk_db.get_document(doc_id)
-                
-                doc_references.append(DocumentReference(
-                    kb_id=kb_id,
-                    doc_id=doc_id,
-                    doc_title=doc_title,
-                    text=result["text"],
-                    relevance_score=result["score"],
-                    page_numbers=(
-                        result.get("chunk_page_start"), 
-                        result.get("chunk_page_end")
-                    ),
-                    metadata=doc_info.get('metadata', {}) if doc_info else {}
-                ))
-            except Exception as e:
-                print(f"Error processing result for doc {doc_id}: {str(e)}")
-                continue
+            if not has_valid_results:
+                return []
 
-        return sorted(doc_references, key=lambda x: x.relevance_score, reverse=True)
+            # Convert results to DocumentReferences
+            doc_references = []
+            seen_segments = defaultdict(int)
+
+            for result in results:
+                if result.get('score', 0) < config.min_relevance:
+                    continue
+
+                try:
+                    doc_id = result["doc_id"]
+                    if config.max_segments_per_doc > 0:
+                        if seen_segments[doc_id] >= config.max_segments_per_doc:
+                            continue
+                        seen_segments[doc_id] += 1
+
+                    doc_title = kb.chunk_db.get_document_title(doc_id, result["chunk_start"]) or ""
+                    doc_info = kb.chunk_db.get_document(doc_id)
+                    
+                    doc_references.append(DocumentReference(
+                        kb_id=kb_id,
+                        doc_id=doc_id,
+                        doc_title=doc_title,
+                        text=result["text"],
+                        relevance_score=result["score"],
+                        page_numbers=(
+                            result.get("chunk_page_start"), 
+                            result.get("chunk_page_end")
+                        ),
+                        metadata=doc_info.get('metadata', {}) if doc_info else {}
+                    ))
+                except Exception as e:
+                    print(f"Error processing result for doc {doc_id}: {str(e)}")
+                    continue
+
+            return sorted(doc_references, key=lambda x: x.relevance_score, reverse=True)
+
+        except Exception as e:
+            print(f"Erreur lors de la recherche dans {kb_id}: {str(e)}")
+            return []

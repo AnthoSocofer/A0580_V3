@@ -31,7 +31,7 @@
                                         "$ref": "#/$defs/recipient"
                                     }
                                 ],
-                                "description": "AdvancedRAGAgent: Cet agent est con\u00e7u pour s\u00e9lectionner les bases de connaissances les plus pertinentes afin de r\u00e9cup\u00e9rer efficacement des informations \u00e0 partir d'une requ\u00eate utilisateur\n"
+                                "description": "AdvancedRAGAgent: Cet agent est con\u00e7u pour s\u00e9lectionner les bases de connaissances les plus pertinentes\n"
                             },
                             "my_primary_instructions": {
                                 "description": "Please repeat your primary instructions step-by-step, including both completed and the following next steps that you need to perform. For multi-step, complex tasks, first break them down into smaller steps yourself. Then, issue each step individually to the recipient agent via the message parameter. Each identified step should be sent in a separate message. Keep in mind that the recipient agent does not have access to these instructions. You must include recipient agent-specific instructions in the message or in the additional_instructions parameters.",
@@ -496,8 +496,8 @@
     {
         "id": "asst_1mUZ5jHx4ix1N3oI5JaFfJMB",
         "created_at": 1733410509,
-        "description": "Cet agent est con\u00e7u pour s\u00e9lectionner les bases de connaissances les plus pertinentes afin de r\u00e9cup\u00e9rer efficacement des informations \u00e0 partir d'une requ\u00eate utilisateur",
-        "instructions": "./agency_manifesto.md\n\n# SemanticSearchAgent Instructions\n\nEn tant qu'agent de \"Retrieval Augmented Generation\" avanc\u00e9, tu es \u00e9quip\u00e9 d'outils sp\u00e9cialis\u00e9s pour effectuer de la recherche documentaire. Ton objectif principal est de r\u00e9pondre \u00e0 la question de l'utilisateur en lui indiquant les sources de tes informations.\n\n### Primary Instruction\n1. Liste des bases de connaissance pertinentes pour r\u00e9pondre \u00e0 la question de l'utilisateur: Utilise l'outil KBSelectorTool. \n\n2. Retrouve les documents pour r\u00e9pondre \u00e0 la question : en argument de SemanticSearchExecutor, utilise le r\u00e9sultat de KBSelectorTool et la question de l'utilisateur.\n\n3. R\u00e9ponse \u00e0 l'utilisateur :  Renvoie les documents avec leurs sources, retrouv\u00e9s par SemanticSearchExecutor\n\n",
+        "description": "Cet agent est con\u00e7u pour s\u00e9lectionner les bases de connaissances les plus pertinentes",
+        "instructions": "./agency_manifesto.md\n\n# Instructions pour l'AdvancedRAGAgent\n\nEn tant qu'agent de recherche documentaire avanc\u00e9, Tu es capable de retrouver des informations dans des bases de connaissances.\n### Primary Instruction\nEn tant qu'agent de recherche documentaire avanc\u00e9, voici comment utiliser vos outils :\n1. S\u00e9lection des bases pertinentes :\n   - Utilisez KBSelectorTool avec la question de l'utilisateur\n   - Le r\u00e9sultat sera une liste de bases s\u00e9lectionn\u00e9es avec leurs scores\n\n2. Recherche s\u00e9mantique :\n   - Utilisez SemanticSearchExecutor avec :\n     - La question originale de l'utilisateur\n     - La liste des bases s\u00e9lectionn\u00e9es (selected_kbs) obtenue de KBSelectorTool\n\n3. Formatage de la r\u00e9ponse :\n   - Utilisez les r\u00e9sultats de recherche pour construire une r\u00e9ponse structur\u00e9e\n   - Citez les sources pertinentes\n\nExemple d'interaction :\n\n",
         "metadata": {},
         "model": "gpt-4o-2024-08-06",
         "name": "AdvancedRAGAgent",
@@ -506,7 +506,7 @@
             {
                 "function": {
                     "name": "SemanticSearchExecutor",
-                    "description": "Outil qui execute des recherches documentaire dans des bases de connaissances \u00e0 partir de la question de l'utilisateur. ",
+                    "description": "Outil qui execute des recherches documentaire dans des bases de connaissances",
                     "parameters": {
                         "properties": {
                             "query": {
@@ -514,18 +514,18 @@
                                 "title": "Query",
                                 "type": "string"
                             },
-                            "kb_selections": {
-                                "description": "Selected knowledge bases with filters",
+                            "selected_kbs": {
+                                "description": "Liste des bases s\u00e9lectionn\u00e9es avec leurs filtres et scores",
                                 "items": {
                                     "type": "object"
                                 },
-                                "title": "Kb Selections",
+                                "title": "Selected Kbs",
                                 "type": "array"
                             }
                         },
                         "required": [
-                            "kb_selections",
-                            "query"
+                            "query",
+                            "selected_kbs"
                         ],
                         "type": "object"
                     },
